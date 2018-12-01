@@ -1,2 +1,0 @@
-﻿- Entender o uso do objeto ViewBag
-- Criar código dinâmico nas views com base em dados recebidos da controller

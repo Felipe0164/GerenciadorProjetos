@@ -1,2 +1,0 @@
-﻿- Utilizar classes personalizadas
-- Compreender como enviar dados para as controllers através de requisições GET e POST
