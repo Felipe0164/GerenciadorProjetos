@@ -1,0 +1,204 @@
+﻿@model List<GerenciadorProjetos.ViewModels.ProjetoViewModel>
+@{
+    ViewBag.Titulo = "Gerenciador de Projetos";
+}
+
+<div class="container-fluid">
+    <h1>Um título</h1>
+
+    <div class="panel panel-default no-margin-bottom">
+        <div class="panel-heading clearfix">
+            <div class="pull-left">
+                Projetos do Sistema
+            </div>
+
+            <div class="pull-right">
+                <button type="button" class="btn btn-outline btn-primary btn-xs" onclick="criar()"><i class="fa fa-plus-circle"></i> Novo Projeto</button>
+            </div>
+        </div>
+        <div class="panel-body dataTable_wrapper" id="tabelaContainer" style="display: none;">
+
+            <partial name="_Listar.cshtml" model="Model" />
+
+        </div>
+    </div>
+
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalExcluir">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Oops...</h4>
+            </div>
+            <div class="modal-body" id="modalExcluirCorpo"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" onclick="confirmarExclusao()"><i class="fa fa-check"></i> Excluir</button>
+                <button type="button" class="btn btn-default btn-outline" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalPlaceholder"></div>
+
+@section Scripts {
+    <script type="text/javascript">
+
+        var codigoParaExcluir, exclusaoConfirmada;
+
+		function prepararLista() {
+			prepareDataTable("#tabela", {
+				// Para iniciar não ordenando
+				//order: [],
+
+				// Para iniciar ordernando pela segunda coluna
+				order: [
+					[0, "asc"]
+				],
+
+				// Para mais opções, ver https://datatables.net
+			});
+			$("#tabelaContainer").show();
+		}
+
+		function atualizarLista(esconderWait) {
+            if (!esconderWait)
+                Notification.wait();
+
+			$.ajax({
+				url: "@Url.Action("Listar")",
+				cache: false,
+				method: "get",
+				error: function (request) {
+					var mensagem = request.responseText;
+
+					if (!mensagem) {
+						mensagem = "Ocorreu um erro desconhecido!";
+					}
+
+                    Notification.error(mensagem);
+				},
+				success: function (dados) {
+                    if (!esconderWait)
+                        Notification.hide();
+
+					$("#tabelaContainer").hide();
+					$("#tabelaContainer").html(dados);
+					prepararLista();
+					$("#tabelaContainer").show();
+				}
+			});
+		}
+
+		function criar() {
+			if ($.active) {
+				return;
+            }
+
+            Notification.wait();
+
+			$.ajax({
+				url: "@Url.Action("Criar")",
+				cache: false,
+				method: "get",
+				error: function (request) {
+					var mensagem = request.responseText;
+
+					if (!mensagem) {
+						mensagem = "Ocorreu um erro desconhecido!";
+					}
+
+                    Notification.error(mensagem);
+				},
+                success: function (dados) {
+                    Notification.hide();
+
+					$("#modalPlaceholder").html(dados);
+				}
+			});
+		}
+
+        function editar(codigo) {
+			if ($.active) {
+				return;
+			}
+
+            Notification.wait();
+
+			$.ajax({
+				url: "@Url.Action("Editar")",
+				cache: false,
+				method: "get",
+                data: { codigo: codigo },
+				error: function (request) {
+					var mensagem = request.responseText;
+
+					if (!mensagem) {
+						mensagem = "Ocorreu um erro desconhecido!";
+					}
+
+                    Notification.error(mensagem);
+				},
+				success: function (dados) {
+                    Notification.hide();
+
+					$("#modalPlaceholder").html(dados);
+				}
+			});
+		}
+
+		function excluir(codigo, botaoClicado) {
+			if ($.active) {
+				return;
+			}
+
+            codigoParaExcluir = codigo;
+			exclusaoConfirmada = false;
+			var tr = botaoClicado.parentNode.parentNode;
+			var celulas = tr.getElementsByTagName("td");
+
+			document.getElementById("modalExcluirCorpo").textContent = "Deseja mesmo excluir o projeto \"" + celulas[0].textContent + "\"?";
+
+			$("#modalExcluir").modal({
+				backdrop: "static",
+				keyboard: false
+			});
+		}
+
+		function confirmarExclusao() {
+			exclusaoConfirmada = true;
+			$("#modalExcluir").modal("hide");
+		}
+
+		$("#modalExcluir").on("hidden.bs.modal", function () {
+			if ($.active || !exclusaoConfirmada) {
+				return;
+			}
+
+            Notification.wait();
+
+			$.ajax({
+				url: "@Url.Action("Excluir")",
+				cache: false,
+				method: "get",
+                data: { codigo: codigoParaExcluir },
+				error: function (request) {
+					var mensagem = request.responseText;
+
+					if (!mensagem) {
+						mensagem = "Ocorreu um erro desconhecido!";
+					}
+
+                    Notification.error(mensagem);
+				},
+				success: function (dados) {
+					atualizarLista();
+				}
+			});
+		});
+
+		prepararLista();
+    </script>
+}

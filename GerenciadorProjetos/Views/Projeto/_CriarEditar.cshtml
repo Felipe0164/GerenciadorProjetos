@@ -1,0 +1,139 @@
+﻿@model GerenciadorProjetos.Models.Projeto
+
+@{
+    bool valido = (Model != null || ViewBag.Criando == true);
+}
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalEditar">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form id="formEditar">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">@(ViewBag.Criando == true ? "Novo Projeto" : "Editar Projeto")</h4>
+                </div>
+                <div class="modal-body">
+                    @if (Model == null && ViewBag.Criando != true)
+                    {
+                        <div class="alert alert-danger no-margin-bottom">
+                            Projeto não encontrado! 😢
+                        </div>
+                    }
+                    else
+                    {
+                        <input type="hidden" id="Codigo" name="Codigo" value="@(Model == null ? 0 : Model.Codigo)" />
+
+                        <div class="form-group">
+                            <label for="Nome">Nome</label>
+                            <input type="text" name="Nome" id="Nome" class="form-control" spellcheck="false" maxlength="45" value="@(Model == null ? "" : Model.Nome)" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Descricao">Descrição</label>
+                            <input type="text" name="Descricao" id="Descricao" class="form-control" spellcheck="false" maxlength="200" value="@(Model == null ? "" : Model.Descricao)" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="DataEntrega">Data de Entrega</label>
+                            <input type="text" name="DataEntrega" id="DataEntrega" class="form-control" spellcheck="false" value="@(Model == null ? "" : Model.DataEntrega.ToString("dd/MM/yyyy"))" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="CodigoCriadorProjeto">Criador</label>
+                            <input type="number" name="CodigoCriadorProjeto" id="CodigoCriadorProjeto" class="form-control" spellcheck="false" value="@(Model == null ? 0 : Model.CodigoCriadorProjeto)" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="CodigoTipoProjeto">Tipo</label>
+                            <input type="number" name="CodigoTipoProjeto" id="CodigoTipoProjeto" class="form-control" spellcheck="false" value="@(Model == null ? 0 : Model.CodigoTipoProjeto)" />
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    @if (valido)
+                    {
+                        <button type="submit" class="btn btn-primary"><i class="fa fa-check"></i> @(ViewBag.Criando == true ? "Criar" : "Salvar")</button>
+                    }
+                    <button type="button" class="btn btn-default btn-outline" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+	$("#modalEditar").modal({
+		backdrop: "static",
+		keyboard: false
+	});
+
+    prepareDatePicker("#DataEntrega");
+
+	// Para mais opções, ver https://jqueryvalidation.org/documentation/
+	$("#formEditar").validate({
+		rules: {
+            Nome: {
+                required: true,
+                maxlength: 45
+            },
+
+            Descricao: {
+                required: true,
+                maxlength: 200
+            },
+
+			DataEntrega: {
+				required: true
+			},
+
+            CodigoCriadorProjeto: {
+				required: true
+            },
+
+            CodigoTipoProjeto: {
+                required: true
+            }
+		},
+
+		submitHandler: function (form) {
+			if ($.active) {
+				return;
+			}
+
+            Notification.wait();
+
+			$.ajax({
+				url: "@Url.Action("Gravar")",
+				cache: false,
+				method: "post",
+				data: new FormData(document.getElementById("formEditar")),
+				contentType: false,
+				processData: false,
+				error: function (request) {
+					var mensagem = request.responseText;
+
+					if (!mensagem) {
+						mensagem = "Ocorreu um erro desconhecido!";
+					}
+
+                    Notification.error(mensagem);
+				},
+				success: function (dados) {
+					@if (ViewBag.Criando == true) {
+						<text>
+                            Notification.success("Projeto criado com sucesso!");
+							$("#formEditar").trigger("reset").validate().resetForm();
+						</text>
+					} else {
+						<text>
+                            Notification.success("Alterações salvas com sucesso!");
+                            $("#modalEditar").modal("hide");
+						</text>
+					}
+
+					atualizarLista(true);
+				}
+			});
+		}
+	});
+</script>

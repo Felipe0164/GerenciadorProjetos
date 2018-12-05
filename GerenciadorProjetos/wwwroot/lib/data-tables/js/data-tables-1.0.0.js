@@ -269,7 +269,7 @@ window.prepareDataTable = function (id, opt) {
 	if (!("language" in o))
 		o.language = window.tableLanguage;
 
-	o.lengthMenu = [[4, 10, 25, 50, 100, 200, -1], [4, 10, 25, 50, 100, 200, "Todos"]];
+	o.lengthMenu = [[10, 25, 50, 100, 200, -1], [10, 25, 50, 100, 200, "Todos"]];
 
 	dt = $(el).DataTable(o);
 
