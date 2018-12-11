@@ -1,0 +1,35 @@
+﻿@model List<GerenciadorProjetos.ViewModels.TarefaViewModel>
+
+<table class="table table-striped table-hover table-row-pointer" id="tabela">
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Descrição</th>
+            <th>Atribuidor</th>
+            <th>Status da tarefa</th>
+            <th>Prazo</th>
+            <th>Projeto</th>
+            <th data-orderable="false"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null)
+        {
+            foreach (GerenciadorProjetos.ViewModels.TarefaViewModel tarefa in Model)
+            {
+                <tr>
+                    <td>@tarefa.Nome</td>
+                    <td>@tarefa.Descricao</td>
+                    <td>@tarefa.Prazo.ToString("dd/MM/yyyy")</td>
+                    <td>@tarefa.NomeAtribuidorTarefa</td>
+                    <td>@tarefa.DescricaoStatusTarefa</td>
+                    <td>@tarefa.CodigoProjeto</td>
+                    <td class="col-min">
+                        <button class="btn btn-outline btn-primary" onclick="editar(@tarefa.Codigo)" title="Editar"><i class="fa fa-edit"></i></button>
+                        <button class="btn btn-outline btn-danger" onclick="excluir(@tarefa.Codigo, this)" title="Excluir"><i class="fa fa-times"></i></button>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>

@@ -1,19 +1,19 @@
-﻿@model List<GerenciadorProjetos.ViewModels.ProjetoViewModel>
+﻿@model List<GerenciadorProjetos.ViewModels.TarefaViewModel>
 @{
-    ViewBag.Titulo = "Gerenciador de Projetos";
+    ViewBag.Titulo = "Gerenciador de Tarefas";
 }
 
 <div class="container-fluid">
-    <h1>Projetos</h1>
+    <h1>Tarefa</h1>
 
     <div class="panel panel-default no-margin-bottom">
         <div class="panel-heading clearfix">
             <div class="pull-left">
-                Projetos do Sistema
+                Tarefas do Sistema
             </div>
 
             <div class="pull-right">
-                <button type="button" class="btn btn-outline btn-primary btn-xs" onclick="criar()"><i class="fa fa-plus-circle"></i> Novo Projeto</button>
+                <button type="button" class="btn btn-outline btn-primary btn-xs" onclick="criar()"><i class="fa fa-plus-circle"></i> Nova Tarefa</button>
             </div>
         </div>
         <div class="panel-body dataTable_wrapper" id="tabelaContainer" style="display: none;">
@@ -159,7 +159,7 @@
 			var tr = botaoClicado.parentNode.parentNode;
 			var celulas = tr.getElementsByTagName("td");
 
-			document.getElementById("modalExcluirCorpo").textContent = "Deseja mesmo excluir o projeto \"" + celulas[0].textContent + "\"?";
+			document.getElementById("modalExcluirCorpo").textContent = "Deseja mesmo excluir a tarefa \"" + celulas[0].textContent + "\"?";
 
 			$("#modalExcluir").modal({
 				backdrop: "static",

@@ -1,0 +1,148 @@
+﻿@model GerenciadorProjetos.Models.Tarefa
+
+@{
+    bool valido = (Model != null || ViewBag.Criando == true);
+}
+
+<div class="modal fade" tabindex="-1" role="dialog" id="modalEditar">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form id="formEditar">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Fechar"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">@(ViewBag.Criando == true ? "Nova Tarefa" : "Editar Tarefa")</h4>
+                </div>
+                <div class="modal-body">
+                    @if (Model == null && ViewBag.Criando != true)
+                    {
+                        <div class="alert alert-danger no-margin-bottom">
+                            Tarefa não encontrada! 😢
+                        </div>
+                    }
+                    else
+                    {
+                        <input type="hidden" id="Codigo" name="Codigo" value="@(Model == null ? 0 : Model.Codigo)" />
+
+                        <div class="form-group">
+                            <label for="Nome">Nome</label>
+                            <input type="text" name="Nome" id="Nome" class="form-control" spellcheck="false" maxlength="45" value="@(Model == null ? "" : Model.Nome)" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Descricao">Descrição</label>
+                            <input type="text" name="Descricao" id="Descricao" class="form-control" spellcheck="false" maxlength="200" value="@(Model == null ? "" : Model.Descricao)" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Prazo">Prazo</label>
+                            <input type="text" name="Prazo" id="Prazo" class="form-control" spellcheck="false" value="@(Model == null ? "" : Model.Prazo.ToString("dd/MM/yyyy"))" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Atribuidor">Atribuidor</label>
+                            <input type="number" name="Atribuidor" id="Atribuidor" class="form-control" spellcheck="false" value="@(Model == null ? 0 : Model.CodigoAtribuidorTarefa)" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Status">Status</label>
+                            <input type="number" name="Status" id="Status" class="form-control" spellcheck="false" value="@(Model == null ? 0 : Model.CodigoStatusTarefa)" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Projeto">Projeto</label>
+                            <input type="number" name="Projeto" id="Projeto" class="form-control" spellcheck="false" value="@(Model == null ? 0 : Model.CodigoProjeto)" />
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    @if (valido)
+                    {
+                        <button type="submit" class="btn btn-primary"><i class="fa fa-check"></i> @(ViewBag.Criando == true ? "Criar" : "Salvar")</button>
+                    }
+                    <button type="button" class="btn btn-default btn-outline" data-dismiss="modal"><i class="fa fa-times"></i> Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+	$("#modalEditar").modal({
+		backdrop: "static",
+		keyboard: false
+	});
+
+    prepareDatePicker("#Prazo");
+
+	// Para mais opções, ver https://jqueryvalidation.org/documentation/
+	$("#formEditar").validate({
+		rules: {
+            Nome: {
+                required: true,
+                maxlength: 45
+            },
+
+            Descricao: {
+                required: true,
+                maxlength: 200
+            },
+
+			Prazo: {
+				required: true
+			},
+
+            CodigoAtribuidorTarefa: {
+				required: true
+            },
+
+            CodigoStatusTarefa: {
+                required: true
+            }
+
+            CodigoProjeto: {
+                required: true
+            }
+		},
+
+		submitHandler: function (form) {
+			if ($.active) {
+				return;
+			}
+
+            Notification.wait();
+
+			$.ajax({
+				url: "@Url.Action("Gravar")",
+				cache: false,
+				method: "post",
+				data: new FormData(document.getElementById("formEditar")),
+				contentType: false,
+				processData: false,
+				error: function (request) {
+					var mensagem = request.responseText;
+
+					if (!mensagem) {
+						mensagem = "Ocorreu um erro desconhecido!";
+					}
+
+                    Notification.error(mensagem);
+				},
+				success: function (dados) {
+					@if (ViewBag.Criando == true) {
+						<text>
+                            Notification.success("Tarefa criada com sucesso!");
+							$("#formEditar").trigger("reset").validate().resetForm();
+						</text>
+					} else {
+						<text>
+                            Notification.success("Alterações salvas com sucesso!");
+                            $("#modalEditar").modal("hide");
+						</text>
+					}
+
+					atualizarLista(true);
+				}
+			});
+		}
+	});
+</script>

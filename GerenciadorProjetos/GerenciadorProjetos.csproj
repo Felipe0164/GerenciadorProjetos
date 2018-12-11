@@ -13,6 +13,15 @@
     <Content Update="Views\Home\Exemplo.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
+    <Content Update="Views\Tarefa\Index.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Views\Tarefa\_CriarEditar.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="Views\Tarefa\_Listar.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
     <Content Update="Views\Projeto\Index.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
