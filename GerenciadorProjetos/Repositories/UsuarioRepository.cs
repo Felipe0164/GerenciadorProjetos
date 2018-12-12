@@ -133,5 +133,112 @@ namespace GerenciadorProjetos.Repositories
                 }
             }
         }
+
+        public static void GravarToken(int codigo, string token)
+        {
+            using (MySqlConnection connection = Sql.Open())
+            {
+                using (MySqlCommand command = new MySqlCommand(@"
+                UPDATE usuario
+                SET token_usuario=@token_usuario
+                WHERE codigo_usuario=@codigo_usuario;
+                ", connection))
+                {
+                    command.Parameters.AddWithValue("@token_usuario", token);
+                    command.Parameters.AddWithValue("@codigo_usuario", codigo);
+
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public static void ApagarToken(int codigo)
+        {
+            using (MySqlConnection connection = Sql.Open())
+            {
+                using (MySqlCommand command = new MySqlCommand(@"
+                UPDATE usuario
+                SET token_usuario=NULL
+                WHERE codigo_usuario=@codigo_usuario;
+                ", connection))
+                {
+                    command.Parameters.AddWithValue("@codigo_usuario", codigo);
+
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public static string ObterSenhaBanco(string login, out int codigo)
+        {
+            codigo = 0;
+
+            using (MySqlConnection connection = Sql.Open())
+            {
+                using (MySqlCommand command = new MySqlCommand(@"
+                SELECT codigo_usuario, senha_usuario
+                FROM usuario
+                WHERE login_usuario=@login_usuario;
+                ", connection))
+                {
+                    command.Parameters.AddWithValue("@login_usuario", login);
+
+                    using (MySqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (!reader.Read())
+                        {
+                            return null;
+                        }
+
+                        codigo = reader.GetInt32(0);
+                        return reader.GetString(1);
+                    }
+                }
+            }
+        }
+
+        public static bool ValidarToken(int codigo, string token, out string nome, out string login)
+        {
+            nome = null;
+            login = null;
+
+            using (MySqlConnection connection = Sql.Open())
+            {
+                using (MySqlCommand command = new MySqlCommand(@"
+                SELECT nome_usuario, login_usuario, token_usuario
+                FROM usuario
+                WHERE codigo_usuario=@codigo_usuario;
+                ", connection))
+                {
+                    command.Parameters.AddWithValue("@codigo_usuario", codigo);
+
+                    using (MySqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (!reader.Read())
+                        {
+                            return false;
+                        }
+
+                        object o = reader.GetValue(2);
+
+                        if (o == null || o == DBNull.Value)
+                        {
+                            return false;
+                        }
+
+                        if (!o.ToString().Equals(token))
+                        {
+                            return false;
+                        }
+
+                        nome = reader.GetString(0);
+                        login = reader.GetString(1);
+
+                        return true;
+                    }
+
+                }
+            }
+        }
     }
 }
