@@ -8,6 +8,6 @@ namespace GerenciadorProjetos.ViewModels
     {
         public string NomeAtribuidorTarefa { get; set; }
         public string DescricaoStatusTarefa { get; set; }
-        public string Colaborador { get; set; }
+        
     }
 }

@@ -22,13 +22,8 @@ SELECT
     status_tarefa, 
     t.codigo_projeto,
     u.nome_usuario,
-    st.descricao_statusTarefa,
-    (SELECT 
-        group_concat(u.nome_usuario) 
-        FROM usuario AS u 
-        INNER JOIN contribuicao AS c ON(u.codigo_usuario = c.codigo_usuario)) AS colaborador
+    st.descricao_statusTarefa
 FROM TAREFA AS t
-INNER JOIN contribuicao AS c ON(t.codigo_tarefa = c.codigo_tarefa)
 INNER JOIN projeto AS p ON(t.codigo_projeto = p.codigo_projeto)
 INNER JOIN usuario AS u ON(t.atribuidor_tarefa = u.codigo_usuario)
 INNER JOIN statustarefa AS st ON(st.codigo_statusTarefa = t.status_tarefa)
@@ -53,8 +48,7 @@ WHERE t.excluido_tarefa = 0
                                 CodigoProjeto = reader.GetInt32(6),
 
                                 NomeAtribuidorTarefa = reader.GetString(7),
-                                DescricaoStatusTarefa = reader.GetString(8),
-                                Colaborador = reader.GetString(9)
+                                DescricaoStatusTarefa = reader.GetString(8)
                             });
                         }
 
@@ -80,7 +74,6 @@ SELECT
     u.nome_usuario,
     st.descricao_statusTarefa
 FROM TAREFA AS t
-INNER JOIN contribuicao AS c ON(t.codigo_tarefa = c.codigo_tarefa)
 INNER JOIN projeto AS p ON(t.codigo_projeto = p.codigo_projeto)
 INNER JOIN usuario AS u ON(t.atribuidor_tarefa = u.codigo_usuario)
 INNER JOIN statustarefa AS st ON(st.codigo_statusTarefa = t.status_tarefa)
@@ -117,7 +110,7 @@ WHERE t.excluido_tarefa = 0 AND t.codigo_tarefa = @codigo_tarefa;
             using (MySqlConnection connection = Sql.Open())
             {
                 using (MySqlCommand command = new MySqlCommand(@"
-INSERT INTO tarefa (nome_tarefa, descricao_tarefa, prazo_tarefa, atribuidor_tarefa, status_tarefa, codigo_projeto, excluido_tarefa)
+INSERT INTO tarefa (nome_tarefa, descricao_tarefa, prazo_tarefa, atribuidor_tarefa, status_tarefa,codigo_projeto, excluido_tarefa)
 VALUES (@nome_tarefa, @descricao_tarefa, @prazo_tarefa, @atribuidor_tarefa, @status_tarefa, @codigo_projeto, 0)
 ", connection))
                 {
